@@ -106,14 +106,14 @@ const Accounts = () => {
         <input
           type="text"
           name="packet"
-          value={newAccount.packet}
+          value={newAccount?.packet}
           onChange={handleInputChange}
           placeholder="Packet"
           className="border p-2 mr-2"
         />
         <select
           name="customer"
-          value={newAccount.customer}
+          value={newAccount?.customer}
           onChange={handleInputChange}
           className="border p-2 mr-2"
         >
@@ -127,14 +127,14 @@ const Accounts = () => {
         <input
           type="number"
           name="balance"
-          value={newAccount.balance}
+          value={newAccount?.balance}
           onChange={handleInputChange}
           placeholder="Balance"
           className="border p-2 mr-2"
         />
         <select
           name="depositoType"
-          value={newAccount.depositoType}
+          value={newAccount?.depositoType}
           onChange={handleInputChange}
           className="border p-2 mr-2"
         >
@@ -152,10 +152,10 @@ const Accounts = () => {
       <ul>
         {accounts.map((account) => (
           <li key={account._id} className="mb-4 p-4 border rounded">
-            <p>Packet: {account.packet}</p>
-            <p>Customer: {account.customer.name}</p>
-            <p>Balance: {account.balance}</p>
-            <p>Deposito Type: {account.depositoType?.name}</p>
+            <p>Packet: {account?.packet}</p>
+            <p>Customer: {account?.customer?.name}</p>
+            <p>Balance: {account?.balance}</p>
+            <p>Deposito Type: {account?.depositoType?.name}</p>
             <button
               onClick={() => setSelectedAccount(account._id)}
               className="bg-green-500 text-white p-2 rounded mt-2"

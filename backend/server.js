@@ -17,6 +17,12 @@ connectToDatabase()
     db = database;
     console.log('Connected to MongoDB');
     
+    // Make db accessible to the router
+    app.use((req, res, next) => {
+      req.db = db;
+      next();
+    });
+
     // Routes
     app.use('/api/customers', require('./src/routes/customerRoutes'));
     app.use('/api/accounts', require('./src/routes/accountRoutes'));
@@ -31,9 +37,3 @@ connectToDatabase()
     console.error('Failed to connect to MongoDB', error);
     process.exit(1);
   });
-
-// Make db accessible to the router
-app.use((req, res, next) => {
-  req.db = db;
-  next();
-});

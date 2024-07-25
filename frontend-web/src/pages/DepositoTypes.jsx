@@ -4,6 +4,7 @@ import axios from 'axios';
 const DepositoTypes = () => {
   const [depositoTypes, setDepositoTypes] = useState([]);
   const [newDepositoType, setNewDepositoType] = useState({ name: '', yearlyReturn: 0 });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchDepositoTypes();
@@ -22,6 +23,10 @@ const DepositoTypes = () => {
     setNewDepositoType({ ...newDepositoType, [e.target.name]: e.target.value });
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -33,10 +38,14 @@ const DepositoTypes = () => {
     }
   };
 
+  const filteredDepositoTypes = depositoTypes.filter((type) =>
+    type.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-4">Deposito Types</h2>
-      <form onSubmit={handleSubmit} className="mb-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Deposito Types</h2>
+      <form onSubmit={handleSubmit} className="mb-4 flex justify-center">
         <input
           type="text"
           name="name"
@@ -55,13 +64,23 @@ const DepositoTypes = () => {
         />
         <button type="submit" className="bg-blue-500 text-white p-2 rounded">Add Deposito Type</button>
       </form>
-      <ul>
-        {depositoTypes.map((type) => (
-          <li key={type._id} className="mb-2">
-            {type.name} - Yearly Return: {type.yearlyReturn}%
-          </li>
+      <div className="mb-4 flex justify-center">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          placeholder="Search Deposito Types"
+          className="border p-2"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        {filteredDepositoTypes.map((type) => (
+          <div key={type._id} className="bg-white border border-gray-200 rounded-lg p-4">
+            <h3 className="text-lg font-bold text-center">{type.name}</h3>
+            <p className="text-gray-700 text-center">Yearly Return: {type.yearlyReturn}%</p>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
