@@ -1,0 +1,87 @@
+const { ObjectId } = require('mongodb');
+
+exports.createAccount = async (req, res) => {
+  try {
+    const result = await req.db.collection('accounts').insertOne(req.body);
+    res.status(201).json({ _id: result.insertedId, ...req.body });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.getAccounts = async (req, res) => {
+  try {
+    const accounts = await req.db.collection('accounts').find().toArray();
+    res.json(accounts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAccount = async (req, res) => {
+  try {
+    const account = await req.db.collection('accounts').findOne({ _id: new ObjectId(req.params.id) });
+    if (!account) return res.status(404).json({ message: 'Account not found' });
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateAccount = async (req, res) => {
+  try {
+    const result = await req.db.collection('accounts').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: req.body }
+    );
+    if (result.matchedCount === 0) return res.status(404).json({ message: 'Account not found' });
+    res.json({ message: 'Account updated successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  try {
+    const result = await req.db.collection('accounts').deleteOne({ _id: new ObjectId(req.params.id) });
+    if (result.deletedCount === 0) return res.status(404).json({ message: 'Account not found' });
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deposit = async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const result = await req.db.collection('accounts').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $inc: { balance: amount } }
+    );
+    if (result.matchedCount === 0) return res.status(404).json({ message: 'Account not found' });
+    res.json({ message: 'Deposit successful' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.withdraw = async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const account = await req.db.collection('accounts').findOne({ _id: new ObjectId(req.params.id) });
+    if (!account) return res.status(404).json({ message: 'Account not found' });
+    
+    if (account.balance < amount) {
+      return res.status(400).json({ message: 'Insufficient balance' });
+    }
+    
+    const result = await req.db.collection('accounts').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $inc: { balance: -amount } }
+    );
+    
+    res.json({ message: 'Withdrawal successful' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
