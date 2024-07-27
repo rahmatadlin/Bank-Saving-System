@@ -68,7 +68,7 @@ const CustomerDetails = () => {
       const response = await axios.post("http://localhost:5000/api/accounts", {
         customerId: id,
         depositoTypeId: newAccount.depositoTypeId,
-        balance: parseFloat(newAccount.balance),
+        balance: parseFloat(newAccount.balance).toFixed(2),
       });
       Swal.fire({
         icon: "success",
@@ -94,7 +94,7 @@ const CustomerDetails = () => {
         `http://localhost:5000/api/accounts/${editAccount._id}`,
         {
           depositoTypeId: editAccount.depositoTypeId,
-          balance: parseFloat(editAccount.balance),
+          balance: parseFloat(editAccount.balance).toFixed(2),
         }
       );
       Swal.fire({
@@ -134,6 +134,12 @@ const CustomerDetails = () => {
     }
   };
 
+  const formatRupiah = (number) => {
+    return number ? 
+      new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number) 
+      : 'Rp 0.00';
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -166,7 +172,7 @@ const CustomerDetails = () => {
                       Account {index + 1} Balance:
                     </td>
                     <td className="py-2 border-b border-gray-200">
-                      {account.balance}
+                      {formatRupiah(account.balance)}
                     </td>
                   </tr>
                   <tr>
@@ -182,7 +188,7 @@ const CustomerDetails = () => {
                       Account {index + 1} Yearly Return:
                     </td>
                     <td className="py-2 border-b border-gray-200">
-                      {account.depositoType?.yearlyReturn}
+                      {(account.depositoType?.yearlyReturn)}
                     </td>
                   </tr>
 
@@ -205,7 +211,6 @@ const CustomerDetails = () => {
                 </React.Fragment>
               ))}
             </tbody>
-
           </table>
           <br />
 

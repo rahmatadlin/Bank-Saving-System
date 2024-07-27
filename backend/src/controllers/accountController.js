@@ -9,7 +9,9 @@ exports.createAccount = async (req, res) => {
     const newAccount = {
       customerId: new ObjectId(customerId),
       depositoTypeId: new ObjectId(depositoTypeId),
-      balance
+      balance,
+      lastTransactionDate: new Date(),
+      createdAt: new Date()
     };
     const result = await req.db.collection('accounts').insertOne(newAccount);
     res.status(201).json({ _id: result.insertedId, ...newAccount });
@@ -68,13 +70,20 @@ exports.deleteAccount = async (req, res) => {
 
 exports.deposit = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, date } = req.body;
     if (typeof amount !== 'number' || amount <= 0) {
       return res.status(400).json({ message: "Invalid deposit amount" });
     }
+    const depositDate = new Date(date);
+    if (isNaN(depositDate.getTime())) {
+      return res.status(400).json({ message: "Invalid deposit date" });
+    }
     const result = await req.db.collection('accounts').updateOne(
       { _id: new ObjectId(req.params.id) },
-      { $inc: { balance: amount } }
+      { 
+        $inc: { balance: amount },
+        $set: { lastTransactionDate: depositDate }
+      }
     );
     if (result.matchedCount === 0) return res.status(404).json({ message: 'Account not found' });
     res.json({ message: 'Deposit successful' });
@@ -85,24 +94,54 @@ exports.deposit = async (req, res) => {
 
 exports.withdraw = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, date } = req.body;
+    console.log("Withdrawal request:", { amount, date });
+
     if (typeof amount !== 'number' || amount <= 0) {
       return res.status(400).json({ message: "Invalid withdrawal amount" });
     }
+    const withdrawalDate = new Date(date);
+    if (isNaN(withdrawalDate.getTime())) {
+      return res.status(400).json({ message: "Invalid withdrawal date" });
+    }
+    
     const account = await req.db.collection('accounts').findOne({ _id: new ObjectId(req.params.id) });
     if (!account) return res.status(404).json({ message: 'Account not found' });
+    console.log("Account found:", account);
     
-    if (account.balance < amount) {
+    if (!account.lastTransactionDate) {
+      console.log("No last transaction date found, using account creation date or current date");
+      account.lastTransactionDate = account.createdAt || new Date();
+    }
+
+    const depositoType = await req.db.collection('depositoTypes').findOne({ _id: new ObjectId(account.depositoTypeId) });
+    if (!depositoType) return res.status(404).json({ message: 'Deposito type not found' });
+    console.log("Deposito type found:", depositoType);
+    
+    const monthsDiff = (withdrawalDate.getTime() - account.lastTransactionDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+    const monthlyInterestRate = depositoType.yearlyReturn / 12 / 100;
+    const endingBalance = account.balance * Math.pow(1 + monthlyInterestRate, monthsDiff);
+    console.log("Calculated ending balance:", endingBalance);
+    
+    if (endingBalance < amount) {
       return res.status(400).json({ message: 'Insufficient balance' });
     }
     
+    const newBalance = endingBalance - amount;
+    
     const result = await req.db.collection('accounts').updateOne(
       { _id: new ObjectId(req.params.id) },
-      { $inc: { balance: -amount } }
+      { 
+        $set: { 
+          balance: newBalance,
+          lastTransactionDate: withdrawalDate
+        }
+      }
     );
     
-    res.json({ message: 'Withdrawal successful' });
+    res.json({ message: 'Withdrawal successful', endingBalance: newBalance });
   } catch (error) {
+    console.error("Withdrawal error:", error);
     res.status(400).json({ message: error.message });
   }
 };

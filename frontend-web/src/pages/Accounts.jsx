@@ -7,6 +7,7 @@ const Accounts = () => {
   const [depositoTypes, setDepositoTypes] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [transactionAmount, setTransactionAmount] = useState(0);
+  const [transactionDate, setTransactionDate] = useState("");
 
   useEffect(() => {
     fetchAccounts();
@@ -49,11 +50,13 @@ const Accounts = () => {
         `http://localhost:5000/api/accounts/${accountId}/deposit`,
         {
           amount: parseFloat(transactionAmount),
+          date: transactionDate,
         }
       );
       fetchAccounts();
       setSelectedAccount(null);
       setTransactionAmount(0);
+      setTransactionDate("");
     } catch (error) {
       console.error("Error making deposit:", error);
     }
@@ -61,18 +64,32 @@ const Accounts = () => {
 
   const handleWithdraw = async (accountId) => {
     try {
-      await axios.post(
+      if (!transactionDate) {
+        alert("Please select a withdrawal date");
+        return;
+      }
+      const response = await axios.post(
         `http://localhost:5000/api/accounts/${accountId}/withdraw`,
         {
           amount: parseFloat(transactionAmount),
+          date: transactionDate,
         }
       );
       fetchAccounts();
       setSelectedAccount(null);
       setTransactionAmount(0);
+      setTransactionDate("");
+      alert(`Withdrawal successful. Ending balance: ${formatRupiah(response.data.endingBalance)}`);
     } catch (error) {
-      console.error("Error making withdrawal:", error);
+      console.error("Error making withdrawal:", error.response?.data || error.message);
+      alert(`Error: ${error.response?.data?.message || error.message}`);
     }
+  };
+
+  const formatRupiah = (number) => {
+    return number ? 
+      new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number) 
+      : 'Rp 0.00';
   };
 
   return (
@@ -85,7 +102,7 @@ const Accounts = () => {
               Customer:{" "}
               {customers.find((c) => c._id === account.customerId)?.name}
             </p>
-            <p>Balance: {account.balance}</p>
+            <p>Balance: {formatRupiah(parseFloat(account.balance))}</p>
             <p>
               Deposito Type:{" "}
               {
@@ -106,6 +123,12 @@ const Accounts = () => {
                   value={transactionAmount}
                   onChange={(e) => setTransactionAmount(e.target.value)}
                   placeholder="Amount"
+                  className="border p-2 mr-2"
+                />
+                <input
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
                   className="border p-2 mr-2"
                 />
                 <button
