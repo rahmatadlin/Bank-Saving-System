@@ -1,5 +1,11 @@
+// src/pages/DepositoTypes.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import {
+  fetchDepositoTypes,
+  addDepositoType,
+  editDepositoType,
+  deleteDepositoType
+} from '../services/api'; // Adjust path if needed
 
 const DepositoTypes = () => {
   const [depositoTypes, setDepositoTypes] = useState([]);
@@ -8,17 +14,17 @@ const DepositoTypes = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetchDepositoTypes();
-  }, []);
+    const fetchData = async () => {
+      try {
+        const data = await fetchDepositoTypes();
+        setDepositoTypes(data);
+      } catch (error) {
+        console.error('Error fetching deposito types:', error);
+      }
+    };
 
-  const fetchDepositoTypes = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/deposito-types');
-      setDepositoTypes(response.data);
-    } catch (error) {
-      console.error('Error fetching deposito types:', error);
-    }
-  };
+    fetchData();
+  }, []);
 
   const handleInputChange = (e) => {
     setNewDepositoType({ ...newDepositoType, [e.target.name]: e.target.value });
@@ -36,22 +42,20 @@ const DepositoTypes = () => {
     e.preventDefault();
     try {
       if (editingDepositoType) {
-        // Hapus `_id` dari objek sebelum mengirimkan request
+        // Remove `_id` from the object before sending the request
         const { _id, ...updateData } = editingDepositoType;
-        const response = await axios.put(`http://localhost:5000/api/deposito-types/${_id}`, updateData);
-        console.log('Update response:', response.data);
+        await editDepositoType(_id, updateData);
         setEditingDepositoType(null);
       } else {
-        const response = await axios.post('http://localhost:5000/api/deposito-types', newDepositoType);
-        console.log('Create response:', response.data);
+        await addDepositoType(newDepositoType);
         setNewDepositoType({ name: '', yearlyReturn: 0 });
       }
-      fetchDepositoTypes();
+      const data = await fetchDepositoTypes(); // Refetch the updated list
+      setDepositoTypes(data);
     } catch (error) {
       console.error('Error saving deposito type:', error.response ? error.response.data : error.message);
     }
   };
-  
 
   const handleEdit = (type) => {
     setEditingDepositoType(type);
@@ -59,8 +63,9 @@ const DepositoTypes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/deposito-types/${id}`);
-      fetchDepositoTypes();
+      await deleteDepositoType(id);
+      const data = await fetchDepositoTypes(); // Refetch the updated list
+      setDepositoTypes(data);
     } catch (error) {
       console.error('Error deleting deposito type:', error.response ? error.response.data : error.message);
     }

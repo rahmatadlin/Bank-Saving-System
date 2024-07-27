@@ -1,4 +1,6 @@
+// src/pages/Home.jsx
 import React, { useState, useEffect } from 'react';
+import { fetchCustomers, fetchAccounts, fetchDepositoTypes } from '../services/api'; // Adjust path if needed
 
 const Home = () => {
   const [customers, setCustomers] = useState(0);
@@ -8,16 +10,13 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const customersResponse = await fetch('http://localhost:5000/api/customers');
-        const customersData = await customersResponse.json();
+        const customersData = await fetchCustomers();
         setCustomers(customersData.length);
 
-        const accountsResponse = await fetch('http://localhost:5000/api/accounts');
-        const accountsData = await accountsResponse.json();
+        const accountsData = await fetchAccounts();
         setAccounts(accountsData.length);
 
-        const depositoTypesResponse = await fetch('http://localhost:5000/api/deposito-types');
-        const depositoTypesData = await depositoTypesResponse.json();
+        const depositoTypesData = await fetchDepositoTypes();
         setDepositoTypes(depositoTypesData.length);
       } catch (error) {
         console.error('Error fetching data:', error);

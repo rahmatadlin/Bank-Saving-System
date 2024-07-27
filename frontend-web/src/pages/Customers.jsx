@@ -1,8 +1,8 @@
 // src/pages/Customers.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Swal from 'sweetalert2';
+import { fetchCustomers, addCustomer, deleteCustomer, editCustomer } from '../services/api'; // Adjust path if needed
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
@@ -17,13 +17,13 @@ const Customers = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCustomers();
+    fetchCustomersData();
   }, []);
 
-  const fetchCustomers = async () => {
+  const fetchCustomersData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/customers');
-      setCustomers(response.data);
+      const data = await fetchCustomers();
+      setCustomers(data);
     } catch (error) {
       console.error('Error fetching customers:', error);
       Swal.fire({
@@ -46,9 +46,9 @@ const Customers = () => {
     e.preventDefault();
     setError('');
     try {
-      await axios.post('http://localhost:5000/api/customers', newCustomer);
+      await addCustomer(newCustomer);
       setNewCustomer({ name: '' });
-      fetchCustomers();
+      fetchCustomersData();
       Swal.fire({
         icon: 'success',
         title: 'Customer Added',
@@ -66,8 +66,8 @@ const Customers = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/customers/${id}`);
-      fetchCustomers();
+      await deleteCustomer(id);
+      fetchCustomersData();
       Swal.fire({
         icon: 'success',
         title: 'Customer Deleted',
@@ -97,10 +97,8 @@ const Customers = () => {
     e.preventDefault();
     setError('');
     try {
-      await axios.put(`http://localhost:5000/api/customers/${editingCustomer._id}`, {
-        name: editingCustomer.name,
-      });
-      fetchCustomers();
+      await editCustomer(editingCustomer._id, editingCustomer.name);
+      fetchCustomersData();
       handleModalClose();
       Swal.fire({
         icon: 'success',

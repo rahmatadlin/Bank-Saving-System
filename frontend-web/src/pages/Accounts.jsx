@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { fetchAccounts, fetchCustomers, fetchDepositoTypes, handleDeposit, handleWithdraw } from '../services/api';
 
 const Accounts = () => {
   const [accounts, setAccounts] = useState([]);
@@ -10,85 +10,59 @@ const Accounts = () => {
   const [transactionDate, setTransactionDate] = useState("");
 
   useEffect(() => {
-    fetchAccounts();
-    fetchCustomers();
-    fetchDepositoTypes();
+    const fetchData = async () => {
+      try {
+        const accountsData = await fetchAccounts();
+        setAccounts(accountsData);
+
+        const customersData = await fetchCustomers();
+        setCustomers(customersData);
+
+        const depositoTypesData = await fetchDepositoTypes();
+        setDepositoTypes(depositoTypesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const fetchAccounts = async () => {
+  const handleDepositClick = async (accountId) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/accounts");
-      setAccounts(response.data);
-    } catch (error) {
-      console.error("Error fetching accounts:", error);
-    }
-  };
-
-  const fetchCustomers = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/customers");
-      setCustomers(response.data);
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-    }
-  };
-
-  const fetchDepositoTypes = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/api/deposito-types"
-      );
-      setDepositoTypes(response.data);
-    } catch (error) {
-      console.error("Error fetching deposito types:", error);
-    }
-  };
-
-  const handleDeposit = async (accountId) => {
-    try {
-      await axios.post(
-        `http://localhost:5000/api/accounts/${accountId}/deposit`,
-        {
-          amount: parseFloat(transactionAmount),
-          date: transactionDate,
-        }
-      );
-      fetchAccounts();
+      await handleDeposit(accountId, transactionAmount, transactionDate);
+      const accountsData = await fetchAccounts();
+      setAccounts(accountsData);
       setSelectedAccount(null);
       setTransactionAmount(0);
       setTransactionDate("");
     } catch (error) {
-      console.error("Error making deposit:", error);
+      console.error('Error making deposit:', error);
     }
   };
 
-  const handleWithdraw = async (accountId) => {
+  const handleWithdrawClick = async (accountId) => {
     try {
       if (!transactionDate) {
         alert("Please select a withdrawal date");
         return;
       }
-      const response = await axios.post(
-        `http://localhost:5000/api/accounts/${accountId}/withdraw`,
-        {
-          amount: parseFloat(transactionAmount),
-          date: transactionDate,
-        }
-      );
-      fetchAccounts();
+      const response = await handleWithdraw(accountId, transactionAmount, transactionDate);
+      const accountsData = await fetchAccounts();
+      setAccounts(accountsData);
       setSelectedAccount(null);
       setTransactionAmount(0);
       setTransactionDate("");
-      alert(`Withdrawal successful. Ending balance: ${formatRupiah(response.data.endingBalance)}`);
+      alert(`Withdrawal successful. Ending balance: ${formatRupiah(response.endingBalance)}`);
     } catch (error) {
-      console.error("Error making withdrawal:", error.response?.data || error.message);
+      console.error('Error making withdrawal:', error.response?.data || error.message);
       alert(`Error: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const formatRupiah = (number) => {
-    return number ? 
-      new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number) 
+    return number ?
+      new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number)
       : 'Rp 0.00';
   };
 
@@ -132,13 +106,13 @@ const Accounts = () => {
                   className="border p-2 mr-2"
                 />
                 <button
-                  onClick={() => handleDeposit(account._id)}
+                  onClick={() => handleDepositClick(account._id)}
                   className="bg-blue-500 text-white p-2 rounded mr-2"
                 >
                   Deposit
                 </button>
                 <button
-                  onClick={() => handleWithdraw(account._id)}
+                  onClick={() => handleWithdrawClick(account._id)}
                   className="bg-red-500 text-white p-2 rounded"
                 >
                   Withdraw
