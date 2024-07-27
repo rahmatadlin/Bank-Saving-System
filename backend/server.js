@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -5,7 +6,9 @@ const { connectToDatabase } = require('./src/config');
 const { swaggerUi, swaggerSpec } = require('./swagger');
 
 const app = express();
+// server.js
 const PORT = process.env.PORT || 5000;
+// For testing, set a different port if needed
 
 // Middleware
 app.use(cors());
@@ -41,3 +44,5 @@ connectToDatabase()
     console.error('Failed to connect to MongoDB', error);
     process.exit(1);
   });
+
+module.exports = app; // Export app for testing
