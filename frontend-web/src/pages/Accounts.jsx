@@ -5,13 +5,6 @@ const Accounts = () => {
   const [accounts, setAccounts] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [depositoTypes, setDepositoTypes] = useState([]);
-  const [newAccount, setNewAccount] = useState({
-    packet: "",
-    customer: "",
-    balance: 0,
-    depositoType: "",
-  });
-
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [transactionAmount, setTransactionAmount] = useState(0);
 
@@ -50,28 +43,12 @@ const Accounts = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    setNewAccount({ ...newAccount, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("http://localhost:5000/api/accounts", newAccount);
-      setNewAccount({ packet: "", customer: "", balance: 0, depositoType: "" });
-      fetchAccounts();
-    } catch (error) {
-      console.error("Error creating account:", error);
-    }
-  };
-
   const handleDeposit = async (accountId) => {
     try {
       await axios.post(
         `http://localhost:5000/api/accounts/${accountId}/deposit`,
         {
           amount: parseFloat(transactionAmount),
-          depositDate: new Date().toISOString(),
         }
       );
       fetchAccounts();
@@ -88,7 +65,6 @@ const Accounts = () => {
         `http://localhost:5000/api/accounts/${accountId}/withdraw`,
         {
           amount: parseFloat(transactionAmount),
-          withdrawalDate: new Date().toISOString(),
         }
       );
       fetchAccounts();
@@ -102,60 +78,21 @@ const Accounts = () => {
   return (
     <div className="container mx-auto mt-8">
       <h2 className="text-2xl font-bold mb-4">Accounts</h2>
-      <form onSubmit={handleSubmit} className="mb-4">
-        <input
-          type="text"
-          name="packet"
-          value={newAccount?.packet}
-          onChange={handleInputChange}
-          placeholder="Packet"
-          className="border p-2 mr-2"
-        />
-        <select
-          name="customer"
-          value={newAccount?.customer}
-          onChange={handleInputChange}
-          className="border p-2 mr-2"
-        >
-          <option value="">Select Customer</option>
-          {customers.map((customer) => (
-            <option key={customer._id} value={customer._id}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          name="balance"
-          value={newAccount?.balance}
-          onChange={handleInputChange}
-          placeholder="Balance"
-          className="border p-2 mr-2"
-        />
-        <select
-          name="depositoType"
-          value={newAccount?.depositoType}
-          onChange={handleInputChange}
-          className="border p-2 mr-2"
-        >
-          <option value="">Select Deposito Type</option>
-          {depositoTypes.map((type) => (
-            <option key={type._id} value={type._id}>
-              {type.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Add Account
-        </button>
-      </form>
       <ul>
         {accounts.map((account) => (
           <li key={account._id} className="mb-4 p-4 border rounded">
-            <p>Packet: {account?.packet}</p>
-            <p>Customer: {account?.customer?.name}</p>
-            <p>Balance: {account?.balance}</p>
-            <p>Deposito Type: {account?.depositoType?.name}</p>
+            <p className="font-bold">
+              Customer:{" "}
+              {customers.find((c) => c._id === account.customerId)?.name}
+            </p>
+            <p>Balance: {account.balance}</p>
+            <p>
+              Deposito Type:{" "}
+              {
+                depositoTypes.find((t) => t._id === account.depositoTypeId)
+                  ?.name
+              }
+            </p>
             <button
               onClick={() => setSelectedAccount(account._id)}
               className="bg-green-500 text-white p-2 rounded mt-2"

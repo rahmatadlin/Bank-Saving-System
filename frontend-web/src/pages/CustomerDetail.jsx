@@ -22,7 +22,9 @@ const CustomerDetails = () => {
 
   const fetchCustomerDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/customers/${id}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/customers/${id}`
+      );
       setCustomer(response.data);
       setLoading(false);
     } catch (error) {
@@ -37,7 +39,9 @@ const CustomerDetails = () => {
 
   const fetchDepositoTypes = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/deposito-types");
+      const response = await axios.get(
+        "http://localhost:5000/api/deposito-types"
+      );
       setDepositoTypes(response.data);
     } catch (error) {
       console.error("Error fetching deposito types:", error);
@@ -72,7 +76,7 @@ const CustomerDetails = () => {
         text: "The account has been added successfully!",
       });
       // Redirect to refresh the page
-      navigate(0); 
+      navigate(0);
     } catch (error) {
       console.error("Error adding account:", error);
       Swal.fire({
@@ -86,10 +90,13 @@ const CustomerDetails = () => {
   const handleEditAccount = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:5000/api/accounts/${editAccount._id}`, {
-        depositoTypeId: editAccount.depositoTypeId,
-        balance: parseFloat(editAccount.balance),
-      });
+      const response = await axios.put(
+        `http://localhost:5000/api/accounts/${editAccount._id}`,
+        {
+          depositoTypeId: editAccount.depositoTypeId,
+          balance: parseFloat(editAccount.balance),
+        }
+      );
       Swal.fire({
         icon: "success",
         title: "Account Updated",
@@ -137,28 +144,48 @@ const CustomerDetails = () => {
           <table className="min-w-full border-gray-200 mb-6">
             <tbody>
               <tr>
-                <td className="py-2 border-b border-gray-200 font-bold">Name:</td>
-                <td className="py-2 border-b border-gray-200">{customer.name}</td>
+                <td className="py-2 border-b border-gray-200 font-bold">
+                  Name:
+                </td>
+                <td className="py-2 border-b border-gray-200">
+                  {customer.name}
+                </td>
               </tr>
               {customer.accounts.map((account, index) => (
                 <React.Fragment key={index}>
                   <tr>
-                    <td className="py-2 border-b border-gray-200 font-bold">Account {index + 1} Packet:</td>
-                    <td className="py-2 border-b border-gray-200">{account.packet}</td>
+                    <td className="py-2 border-b border-gray-200 font-bold">
+                      Account {index + 1} Packet:
+                    </td>
+                    <td className="py-2 border-b border-gray-200">
+                      {account.packet}
+                    </td>
                   </tr>
                   <tr>
-                    <td className="py-2 border-b border-gray-200">Account {index + 1} Balance:</td>
-                    <td className="py-2 border-b border-gray-200">{account.balance}</td>
+                    <td className="py-2 border-b border-gray-200">
+                      Account {index + 1} Balance:
+                    </td>
+                    <td className="py-2 border-b border-gray-200">
+                      {account.balance}
+                    </td>
                   </tr>
                   <tr>
-                    <td className="py-2 border-b border-gray-200">Account {index + 1} Deposito Type:</td>
-                    <td className="py-2 border-b border-gray-200">{account?.depositoType?.name}</td>
+                    <td className="py-2 border-b border-gray-200">
+                      Account {index + 1} Deposito Type:
+                    </td>
+                    <td className="py-2 border-b border-gray-200">
+                      {account?.depositoType?.name}
+                    </td>
                   </tr>
                   <tr>
-                    <td className="py-2 border-b border-gray-200">Account {index + 1} Yearly Return:</td>
-                    <td className="py-2 border-b border-gray-200">{account.depositoType?.yearlyReturn}</td>
+                    <td className="py-2 border-b border-gray-200">
+                      Account {index + 1} Yearly Return:
+                    </td>
+                    <td className="py-2 border-b border-gray-200">
+                      {account.depositoType?.yearlyReturn}
+                    </td>
                   </tr>
-                  
+
                   <tr>
                     <td colSpan="2" className="py-2 border-b border-gray-200">
                       <button
@@ -175,11 +202,12 @@ const CustomerDetails = () => {
                       </button>
                     </td>
                   </tr>
-                  <br></br>
                 </React.Fragment>
               ))}
             </tbody>
+
           </table>
+          <br />
 
           <div className="mt-6">
             <h3 className="text-2xl font-bold mb-4">
@@ -190,7 +218,9 @@ const CustomerDetails = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700">Deposito Type</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Deposito Type
+                </label>
                 <select
                   name="depositoTypeId"
                   value={
@@ -210,7 +240,9 @@ const CustomerDetails = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Balance</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Balance
+                </label>
                 <input
                   type="number"
                   name="balance"
