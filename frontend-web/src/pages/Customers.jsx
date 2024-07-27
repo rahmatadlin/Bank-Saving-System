@@ -1,4 +1,6 @@
+// src/pages/Customers.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -11,6 +13,8 @@ const Customers = () => {
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCustomers();
@@ -42,7 +46,7 @@ const Customers = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await axios.post('http://localhost:5000/api/customers', newCustomer);
+      await axios.post('http://localhost:5000/api/customers', newCustomer);
       setNewCustomer({ name: '' });
       fetchCustomers();
       Swal.fire({
@@ -132,26 +136,33 @@ const Customers = () => {
 
   return (
     <div className="container mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-4 text-center">Customers</h2>
-      <form onSubmit={handleSubmit} className="mb-4 flex flex-col items-center">
-        <input
-          type="text"
-          name="name"
-          value={newCustomer.name}
-          onChange={handleInputChange}
-          placeholder="Customer Name"
-          className="border p-2 mb-2 w-full max-w-xs"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">Add Customer</button>
-      </form>
-      <div className="mb-4 flex justify-center">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Search Customers"
-          className="border p-2 w-full max-w-xs"
-        />
+      <h2 className="text-4xl font-bold mb-4 text-center">Customers</h2>
+      <div className="mb-4 flex flex-col items-center space-y-4">
+        <div className="flex items-center space-x-4">
+          <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+            <input
+              type="text"
+              name="name"
+              value={newCustomer.name}
+              onChange={handleInputChange}
+              placeholder="Customer Name"
+              className="border p-2 w-auto"
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 text-white p-1.5 rounded w-full h-full"
+            >
+              Add
+            </button>
+          </form>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Search Customers"
+            className="border p-2 w-full max-w-md"
+          />
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
@@ -166,6 +177,12 @@ const Customers = () => {
               <tr key={customer._id} className="text-center border-t border-gray-200">
                 <td className="py-2 border-r border-gray-200">{customer.name}</td>
                 <td className="py-2">
+                  <button
+                    onClick={() => navigate(`/customers/${customer._id}`)}
+                    className="bg-blue-500 text-white p-2 rounded mr-2"
+                  >
+                    Details
+                  </button>
                   <button
                     onClick={() => handleEdit(customer)}
                     className="bg-yellow-500 text-white p-2 rounded mr-2"
@@ -198,7 +215,7 @@ const Customers = () => {
         </nav>
       </div>
 
-      {/* Modal */}
+      {/* Edit Customer Modal */}
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
