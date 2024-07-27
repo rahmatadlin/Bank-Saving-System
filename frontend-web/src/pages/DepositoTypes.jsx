@@ -1,11 +1,10 @@
-// src/pages/DepositoTypes.jsx
 import React, { useState, useEffect } from 'react';
 import {
   fetchDepositoTypes,
   addDepositoType,
   editDepositoType,
   deleteDepositoType
-} from '../services/api'; // Adjust path if needed
+} from '../services/api'; // Adjust the path as necessary
 
 const DepositoTypes = () => {
   const [depositoTypes, setDepositoTypes] = useState([]);
@@ -14,7 +13,7 @@ const DepositoTypes = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadDepositoTypes = async () => {
       try {
         const data = await fetchDepositoTypes();
         setDepositoTypes(data);
@@ -23,7 +22,7 @@ const DepositoTypes = () => {
       }
     };
 
-    fetchData();
+    loadDepositoTypes();
   }, []);
 
   const handleInputChange = (e) => {
@@ -42,7 +41,6 @@ const DepositoTypes = () => {
     e.preventDefault();
     try {
       if (editingDepositoType) {
-        // Remove `_id` from the object before sending the request
         const { _id, ...updateData } = editingDepositoType;
         await editDepositoType(_id, updateData);
         setEditingDepositoType(null);
@@ -50,7 +48,7 @@ const DepositoTypes = () => {
         await addDepositoType(newDepositoType);
         setNewDepositoType({ name: '', yearlyReturn: 0 });
       }
-      const data = await fetchDepositoTypes(); // Refetch the updated list
+      const data = await fetchDepositoTypes();
       setDepositoTypes(data);
     } catch (error) {
       console.error('Error saving deposito type:', error.response ? error.response.data : error.message);
@@ -64,7 +62,7 @@ const DepositoTypes = () => {
   const handleDelete = async (id) => {
     try {
       await deleteDepositoType(id);
-      const data = await fetchDepositoTypes(); // Refetch the updated list
+      const data = await fetchDepositoTypes();
       setDepositoTypes(data);
     } catch (error) {
       console.error('Error deleting deposito type:', error.response ? error.response.data : error.message);

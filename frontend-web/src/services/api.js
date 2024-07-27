@@ -111,7 +111,6 @@ export const deleteAccount = async (accountId) => {
   }
 };
 
-
 export const addCustomer = async (customer) => {
   try {
     const response = await axios.post(`${BASE_URL}/customers`, customer);
@@ -122,7 +121,6 @@ export const addCustomer = async (customer) => {
   }
 };
 
-// Add this function to handle deleting a customer
 export const deleteCustomer = async (id) => {
   try {
     const response = await axios.delete(`${BASE_URL}/customers/${id}`);
@@ -133,13 +131,44 @@ export const deleteCustomer = async (id) => {
   }
 };
 
-// Add this function to handle updating a customer
 export const editCustomer = async (id, name) => {
   try {
     const response = await axios.put(`${BASE_URL}/customers/${id}`, { name });
     return response.data;
   } catch (error) {
     console.error('Error updating customer:', error);
+    throw error;
+  }
+};
+
+// Add these functions for deposito types
+
+export const addDepositoType = async (depositoType) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/deposito-types`, depositoType);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding deposito type:', error);
+    throw error;
+  }
+};
+
+export const editDepositoType = async (id, depositoType) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/deposito-types/${id}`, depositoType);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating deposito type:', error);
+    throw error;
+  }
+};
+
+export const deleteDepositoType = async (id) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/deposito-types/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting deposito type:', error);
     throw error;
   }
 };
