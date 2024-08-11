@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://bank-saving-system.vercel.app/api';
+const BASE_URL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://bank-saving-system.vercel.app/api'
+    : 'http://localhost:5000/api';
 
 export const fetchAccounts = async () => {
   try {
